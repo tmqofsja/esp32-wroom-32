@@ -23,7 +23,8 @@
 #include <BluetoothSerial.h> 
 #include <AceButton.h>
 #include <RCSwitch.h>
-#include <IRremote.h>
+#include <IRremote.hpp>
+//#include <PinDefinitionsAndMore.h>
 #include "RF433.h"
 
 using namespace ace_button;
@@ -71,9 +72,8 @@ RCSwitch mySwitch = RCSwitch(); //RF433
 #define SwitchPin9 17  //36  //16  //D16 All ON OFF  (lolin_d32_pro 1 /lolin_d32 16)
 #define Rec_Int    15  //17  // D17 RF433 수신 pin  (lolin_d32_pro 3 /lolin_d32 17)
 #define wifiLed     2  //D2
-//#define IR_RECV_PIN 15  //D15 IR 수신 pin
-#define IR_RECEIVE_PIN1 0 //D0 IR 수신 pin
-
+//#define IR_RECEIVE_PIN 15  //D15 IR 수신 pin
+#define IR_RECEIVE_PIN 0 //D0 IR 수신 pin
 #define EEPROM_SIZE 9
 
 void RF433();
@@ -283,11 +283,13 @@ void setup()
   EEPROM.begin(EEPROM_SIZE);
   
   btStart();  //Serial.println("Bluetooth On");
-  SerialBT.begin("WOOK111"); //Bluetooth device name 
+  SerialBT.begin("WOOK"); //Bluetooth device name 
   Serial.println("The device started, now you can pair it with bluetooth!");
   delay(5000);
 
-  IrReceiver.begin(IR_RECEIVE_PIN1, ENABLE_LED_FEEDBACK, USE_DEFAULT_FEEDBACK_LED_PIN); // IR Start the receiver
+  IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK); // Start the receiver
+
+  //IrReceiver.begin(IR_RECEIVE_PIN1, ENABLE_LED_FEEDBACK, USE_DEFAULT_FEEDBACK_LED_PIN); // IR Start the receiver
 
   for(i = 0 ; i < 8 ; i++){
     pinMode(RelayPin[i], OUTPUT);
@@ -301,10 +303,13 @@ void setup()
   //During Starting all Relays should TURN OFF
 
   for(i = 0 ; i < 8 ; i++){
-    toggleState[i] = EEPROM.read(i);
-    digitalWrite(RelayPin[i], toggleState[i]);
+      toggleState[i] = EEPROM.read(i);
+      digitalWrite(RelayPin[i], toggleState[i]);
+      Serial.print("ToggleState " + String(i+1) + " = " + String(toggleState[i]));
+      Serial.println();
   }  
   toggleState[i] = EEPROM.read(i);
+      Serial.print("ToggleState " + String(i+1) + " = " + String(toggleState[i]));
   
   config1.setEventHandler(button1Handler);
   config2.setEventHandler(button2Handler);
